@@ -7,48 +7,53 @@ end FSM_tb;
 
 architecture testbench of FSM_tb is
     component FSM_Control is
-        port (
-            Mode,clk,clr : IN std_logic;
-            Sense,O : OUT std_logic);
+        port (Mode : IN std_logic_vector (1 downto 0); -- untuk memilih mode
+                CLK,CLR : IN std_logic;
+                Sense,Dout : OUT std_logic);
     end component;
 
-    signal mode_tb : std_logic;
+    signal mode_tb : std_logic_vector (1 downto 0);
     signal clk_tb, clr_tb : std_logic;
     signal sense, Qout : std_logic;
 
-	signal counter : integer := 0;
     signal wait_time : time := 20 ns;
-    constant end_counter : integer := 10;
 
 begin
 
     UUT : FSM_control port map (
         Mode => mode_tb,
-        clk => clk_tb,
-        clr => clr_tb,
+        CLK => clk_tb,
+        CLR => clr_tb,
         Sense => sense,
-        O => Qout);
+        Dout => Qout);
 
-    clk_proc : process
+	process
         begin 
-            if(counter < end_counter) then
-                clk_tb <= '1';
-                wait for wait_time/2;
-                clk_tb <= '0';
-                wait for wait_time/2;
-                counter <= counter + 1;
-            end if;
+             clk_tb <= '1';
+             wait for wait_time/4;
+             clk_tb <= '0';
+             wait for wait_time/4;
         end process;  
         
-    FSM_proc : process
+    process
         begin
+            clr_tb <= '1';
+            wait for wait_time/2;
             clr_tb <= '0';
             wait for wait_time;
-            sense <= '1';
-            wait for wait_time;
-            mode_tb <= '1';
-            wait for wait_time;
-
+            clr_tb <= '1';
+            wait for wait_time/2;
+            clr_tb <= '0';
             wait;
+        end process;
+
+    process
+        begin
+            mode_tb <= "01";
+            wait for wait_time/2;
+            mode_tb <= "11";
+            wait for wait_time/2;
+            mode_tb <= "00";
+            wait for wait_time/2;
         end process;
 end architecture;
